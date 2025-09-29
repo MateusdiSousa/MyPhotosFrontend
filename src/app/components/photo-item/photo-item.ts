@@ -19,4 +19,15 @@ export class PhotoItem {
   public getUrl() {
     return getUrlPhoto(this.photo);
   }
+
+  public formatSize(size: number): string {
+  if (size === 0) return '0 Bytes';
+
+  const units = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const base = 1024;
+  const exponent = Math.floor(Math.log(size) / Math.log(base));
+  const formattedSize = (size / Math.pow(base, exponent)).toFixed(2);
+
+  return `${formattedSize} ${units[exponent]}`;
+}
 }

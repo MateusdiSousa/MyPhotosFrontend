@@ -35,9 +35,9 @@
   </div>
 
   <!-- Lista de arquivos selecionados -->
-  <div class="files-list" *ngIf="selectedFiles.length > 0">
+  <div class="files-list" *ngIf="selectedFiles.size > 0">
     <div class="files-header">
-      <h4>Arquivos Selecionados ({{ selectedFiles.length }})</h4>
+      <h4>Arquivos Selecionados ({{ selectedFiles.size }})</h4>
       <button
         type="button"
         class="btn btn-danger btn-sm"
@@ -48,56 +48,57 @@
       </button>
     </div>
 
-    <div class="files-grid">
-      <div
-        *ngFor="let file of selectedFiles; let i = index"
-        class="file-item"
-        [class.uploading]="file.uploading"
-        [class.error]="file.error"
-      >
-        <div class="file-icon">
-          {{ getFileIcon(file.type) }}
-        </div>
+<div class="files-grid">
+  <!-- Use *ngFor com entries do Map -->
+  <div
+    *ngFor="let file of selectedFiles | keyvalue"
+    class="file-item"
+    [class.uploading]="file.value.uploading"
+    [class.error]="file.value.error"
+  >
+    <div class="file-icon">
+      {{ getFileIcon(file.value.type) }}
+    </div>
 
-        <div class="file-info">
-          <div class="file-name" [title]="file.name">
-            {{ file.name }}
+    <div class="file-info">
+      <div class="file-name" [title]="file.value.name">
+        {{ file.value.name }}
+      </div>
+      <div class="file-details">
+        {{ formatFileSize(file.value.size) }} • {{ file.value.type || 'Tipo desconhecido' }}
+      </div>
+      <div class="file-status" *ngIf="file.value.uploading || file.value.error || file.value.progress !== undefined">
+        <div *ngIf="file.value.uploading" class="progress-container">
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="file.value.progress || 0"
+            ></div>
           </div>
-          <div class="file-details">
-            {{ formatFileSize(file.size) }} • {{ file.type || 'Tipo desconhecido' }}
-          </div>
-          <div class="file-status" *ngIf="file.uploading || file.error || file.progress !== undefined">
-            <div *ngIf="file.uploading" class="progress-container">
-              <div class="progress-bar">
-                <div
-                  class="progress-fill"
-                  [style.width.%]="file.progress || 0"
-                ></div>
-              </div>
-              <span class="progress-text">{{ file.progress || 0 }}%</span>
-            </div>
-            <div *ngIf="file.error" class="error-message">
-              ❌ {{ file.error }}
-            </div>
-            <div *ngIf="file.completed" class="success-message">
-              ✅ Concluído
-            </div>
-          </div>
+          <span class="progress-text">{{ file.value.progress || 0 }}%</span>
         </div>
-
-        <div class="file-actions">
-          <button
-            type="button"
-            class="btn-remove"
-            (click)="removeFile(i)"
-            [disabled]="file.uploading"
-            title="Remover arquivo"
-          >
-            ✕
-          </button>
+        <div *ngIf="file.value.error" class="error-message">
+          ❌ {{ file.value.error }}
+        </div>
+        <div *ngIf="file.value.completed" class="success-message">
+          ✅ Concluído
         </div>
       </div>
     </div>
+
+    <div class="file-actions">
+      <button
+        type="button"
+        class="btn-remove"
+        (click)="removeFile(file.key)"
+        [disabled]="file.value.uploading"
+        title="Remover arquivo"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+</div>
 
     <!-- Botão de upload -->
     <div class="upload-actions">
@@ -105,12 +106,12 @@
         type="button"
         class="btn btn-success btn-upload"
         (click)="uploadFiles()"
-        [disabled]="selectedFiles.length === 0 || isUploading"
+        [disabled]="selectedFiles.size === 0 || isUploading"
       >
-        <span *ngIf="!isUploading">📤 Enviar {{ selectedFiles.length }} Arquivo(s)</span>
+        <span *ngIf="!isUploading">📤 Enviar {{ selectedFiles.size }} Arquivo(s)</span>
         <span *ngIf="isUploading">
           <div class="loading-spinner"></div>
-          Enviando... ({{ getUploadingCount() }}/{{ selectedFiles.length }})
+          Enviando... ({{ getUploadingCount() }}/{{ selectedFiles.size }})
         </span>
       </button>
     </div>

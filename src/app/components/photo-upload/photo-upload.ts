@@ -2,6 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, Output, EventEmitter } from '@angular/core';
 import { PhotoService } from '../../service/photo-service';
 import { environment } from '../../../environments/environment';
+import {
+  ProgressFileResponse,
+  UploadFIleResponse as UploadFileResponse,
+} from '../../models/MessageResponse';
+import { every, Subject } from 'rxjs';
 
 interface SelectedFile {
   file: File;
@@ -23,10 +28,11 @@ interface SelectedFile {
 export class PhotoUpload {
   @Output() loadPhotos = new EventEmitter<void>();
 
-  selectedFiles: SelectedFile[] = [];
+  selectedFiles: Map<string, SelectedFile> = new Map<string, SelectedFile>();
   isDragOver = false;
   isUploading = false;
   socket!: WebSocket;
+  private messageSubject = new Subject<any>();
 
   // Tipos de arquivo aceitos
   readonly acceptedTypes = [
@@ -58,13 +64,77 @@ export class PhotoUpload {
       }, 5000);
     };
 
-    this.socket.onmessage = (event: MessageEvent<string>) => {
-      console.log('Mensagem chegou: ' + event.data);
+    this.socket.onmessage = (event: MessageEvent) => {
+      console.log(event);
+      try {
+        const data = JSON.parse(event.data);
+
+        if (this.isProgressFileResponse(data)) {
+          this.handleProgressResponse(data);
+        } else if (this.isUploadFileResponse(data)) {
+          this.handleUploadResponse(data);
+        } else {
+          // Mensagem de texto simples
+          console.log('Mensagem chegou: ' + event.data);
+        }
+      } catch (error) {
+        // Se não for JSON, trata como texto simples
+        console.log('Mensagem chegou: ' + event.data);
+      }
     };
 
     this.socket.onerror = (error) => {
       console.error('Erro WebSocket:', error);
     };
+
+    this.messageSubject.subscribe((data: any) => {});
+  }
+
+  // Type guards
+  private isProgressFileResponse(data: any): data is ProgressFileResponse {
+    return (
+      data &&
+      typeof data.filename === 'string' &&
+      typeof data.chunksSended === 'number' &&
+      typeof data.totalChunks === 'number'
+    );
+  }
+
+  private isUploadFileResponse(data: any): data is UploadFileResponse {
+    return (
+      data &&
+      data.photo &&
+      typeof data.photo.originalFilename === 'string' &&
+      typeof data.message === 'string'
+    );
+  }
+
+  // Handlers específicos
+  private handleProgressResponse(response: ProgressFileResponse): void {
+    console.log('Progress response:', response);
+
+    const selectedFile = this.selectedFiles.get(response.filename);
+    if (selectedFile) {
+      // Corrigindo o cálculo do progresso
+      selectedFile.progress = Math.round((response.chunksSended / response.totalChunks) * 100);
+    }
+  }
+
+  private handleUploadResponse(response: UploadFileResponse): void {
+    console.log('Upload response:', response);
+
+    const selectedFile = this.selectedFiles.get(response.photo.originalFilename);
+    if (selectedFile) {
+      selectedFile.completed = true;
+      selectedFile.uploading = false;
+      selectedFile.progress = 100;
+    }
+
+    if (this.getUploadingCount() == this.selectedFiles.size) {
+      this.isUploading = false;
+      this.selectedFiles.clear();
+      this.loadPhotos.emit();
+    }
   }
 
   onFileSelected(event: Event): void {
@@ -102,30 +172,14 @@ export class PhotoUpload {
       return;
     }
 
-    // Adicionar apenas arquivos novos (evitar duplicatas por nome)
-    const newFiles = validFiles.filter(
-      (newFile) =>
-        !this.selectedFiles.some(
-          (existingFile) => existingFile.name === newFile.name && existingFile.size === newFile.size
-        )
+    validFiles.map((file) =>
+      this.selectedFiles.set(file.name, {
+        file,
+        name: file.name,
+        size: file.size,
+        type: this.getFileType(file.type),
+      })
     );
-
-    const newSelectedFiles: SelectedFile[] = newFiles.map((file) => ({
-      file,
-      name: file.name,
-      size: file.size,
-      type: this.getFileType(file.type),
-    }));
-
-    this.selectedFiles = [...this.selectedFiles, ...newSelectedFiles];
-
-    // Mostrar alerta se alguns arquivos foram filtrados
-    if (validFiles.length !== files.length) {
-      const invalidCount = files.length - validFiles.length;
-      alert(
-        `${invalidCount} arquivo(s) inválido(s) foram ignorados. Apenas imagens e vídeos são permitidos.`
-      );
-    }
   }
 
   private isValidFileType(file: File): boolean {
@@ -160,35 +214,37 @@ export class PhotoUpload {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  removeFile(index: number): void {
-    this.selectedFiles.splice(index, 1);
+  removeFile(filename: string): void {
+    this.selectedFiles.delete(filename);
   }
 
   clearAllFiles(): void {
-    this.selectedFiles = [];
+    this.selectedFiles.clear();
   }
 
   getUploadingCount(): number {
-    return this.selectedFiles.filter((file) => file.completed).length;
+    let count = 0;
+    this.selectedFiles.forEach((file) => {
+      if (file.completed) {
+        count++;
+      }
+    });
+    return count;
   }
 
   uploadFiles(): void {
-    if (this.selectedFiles.length === 0 || this.isUploading) {
+    if (this.selectedFiles.size === 0 || this.isUploading) {
       return;
     }
 
     this.isUploading = true;
 
-    const files = this.selectedFiles.map((item) => item.file);
+    const files = Array.from(this.selectedFiles.values()).map((file) => {
+      file.uploading = true
+      return file.file;
+    });
 
     // Upload dos arquivos via WebSocket
-    this.photoService.sendFiles(this.socket, files)
-
-    this.isUploading = false
-
-    this.clearAllFiles()
-
-    setTimeout(() => this.loadPhotos.emit(), 5000)
-
+    this.photoService.sendFiles(this.socket, files);
   }
 }

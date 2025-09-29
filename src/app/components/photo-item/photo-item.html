@@ -5,7 +5,7 @@
     <div class="info-overlay">
       <p><strong>Nome:</strong> {{ photo.originalFilename }}</p>
       <p><strong>Data:</strong> {{ photo.createdAt}}</p>
-      <p><strong>Tamanho:</strong> {{ photo.size }} bytes</p>
+      <p><strong>Tamanho:</strong> {{ formatSize(photo.size) }} bytes</p>
       <p><strong>Tipo:</strong> {{ photo.contentType }}</p>
     </div>
   </div>
@@ -15,7 +15,7 @@
     <div class="info-overlay">
       <p><strong>Nome:</strong> {{ photo.originalFilename }}</p>
       <p><strong>Data:</strong> {{ photo.createdAt}}</p>
-      <p><strong>Tamanho:</strong> {{ photo.size }} bytes</p>
+      <p><strong>Tamanho:</strong> {{ formatSize(photo.size) }}</p>
       <p><strong>Tipo:</strong> {{ photo.contentType }}</p>
     </div>
   </div>
