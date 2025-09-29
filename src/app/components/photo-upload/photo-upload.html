@@ -1,0 +1,118 @@
+<div class="upload-container">
+  <div class="upload-header">
+    <h3>Upload de Fotos e Vídeos</h3>
+    <p>Selecione arquivos de imagem (JPEG, PNG, GIF) ou vídeo (MP4, AVI, MOV)</p>
+  </div>
+
+  <!-- Área de drop de arquivos -->
+  <div
+    class="drop-zone"
+    (drop)="onFileDrop($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    [class.drag-over]="isDragOver"
+  >
+    <div class="drop-content">
+      <i class="upload-icon">📁</i>
+      <h4>Arraste os arquivos aqui</h4>
+      <p>ou</p>
+      <input
+        type="file"
+        #fileInput
+        (change)="onFileSelected($event)"
+        multiple
+        accept="image/*,video/*"
+        class="file-input"
+      />
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="fileInput.click()"
+      >
+        Selecione os Arquivos
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de arquivos selecionados -->
+  <div class="files-list" *ngIf="selectedFiles.length > 0">
+    <div class="files-header">
+      <h4>Arquivos Selecionados ({{ selectedFiles.length }})</h4>
+      <button
+        type="button"
+        class="btn btn-danger btn-sm"
+        (click)="clearAllFiles()"
+        [disabled]="isUploading"
+      >
+        Remover Todos
+      </button>
+    </div>
+
+    <div class="files-grid">
+      <div
+        *ngFor="let file of selectedFiles; let i = index"
+        class="file-item"
+        [class.uploading]="file.uploading"
+        [class.error]="file.error"
+      >
+        <div class="file-icon">
+          {{ getFileIcon(file.type) }}
+        </div>
+
+        <div class="file-info">
+          <div class="file-name" [title]="file.name">
+            {{ file.name }}
+          </div>
+          <div class="file-details">
+            {{ formatFileSize(file.size) }} • {{ file.type || 'Tipo desconhecido' }}
+          </div>
+          <div class="file-status" *ngIf="file.uploading || file.error || file.progress !== undefined">
+            <div *ngIf="file.uploading" class="progress-container">
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="file.progress || 0"
+                ></div>
+              </div>
+              <span class="progress-text">{{ file.progress || 0 }}%</span>
+            </div>
+            <div *ngIf="file.error" class="error-message">
+              ❌ {{ file.error }}
+            </div>
+            <div *ngIf="file.completed" class="success-message">
+              ✅ Concluído
+            </div>
+          </div>
+        </div>
+
+        <div class="file-actions">
+          <button
+            type="button"
+            class="btn-remove"
+            (click)="removeFile(i)"
+            [disabled]="file.uploading"
+            title="Remover arquivo"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão de upload -->
+    <div class="upload-actions">
+      <button
+        type="button"
+        class="btn btn-success btn-upload"
+        (click)="uploadFiles()"
+        [disabled]="selectedFiles.length === 0 || isUploading"
+      >
+        <span *ngIf="!isUploading">📤 Enviar {{ selectedFiles.length }} Arquivo(s)</span>
+        <span *ngIf="isUploading">
+          <div class="loading-spinner"></div>
+          Enviando... ({{ getUploadingCount() }}/{{ selectedFiles.length }})
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+.photo-card {
+  width: 250px;
+  height: 300px; /* Altura fixa para manter consistência */
+  margin: 10px;
+  cursor: pointer;
+  position: relative;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito quando o card está selecionado */
+.photo-card.selected {
+  border-color: #2196F3;
+  box-shadow: 0 6px 12px rgba(33, 150, 243, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Checkbox de seleção */
+.selection-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+/* Mostrar checkbox quando em modo de seleção */
+.photo-card:hover .selection-checkbox,
+.photo-card.selected .selection-checkbox {
+  opacity: 1;
+}
+
+/* Customização da checkbox */
+.selection-checkbox:checked {
+  opacity: 1;
+}
+
+.selection-checkbox::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.selection-checkbox:checked::before {
+  background: #2196F3;
+  border-color: #2196F3;
+}
+
+.selection-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  left: 4px;
+  top: 1px;
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  width: 100%;
+  height: 240px; /* Altura fixa para a imagem/vídeo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+/* Efeito de destaque na imagem quando selecionada */
+.photo-card.selected .image-container {
+  transform: scale(0.95);
+}
+
+.image-container img,
+.image-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Garante que a imagem preencha o container mantendo proporção */
+  display: block;
+  transition: all 0.4s ease;
+  border-radius: 8px;
+}
+
+.image-container:hover img,
+.image-container:hover video {
+  transform: scale(1.05);
+}
+
+.photo-card.selected .image-container:hover img,
+.photo-card.selected .image-container:hover video {
+  transform: scale(1.02);
+}
+
+.info-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: 15px 10px 10px;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-height: 100%;
+  overflow: auto;
+  transform: translateY(10px);
+}
+
+.image-container:hover .info-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Efeito de overlay quando selecionado */
+.photo-card.selected .image-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Garantir que todos os cards tenham o mesmo tamanho */
+:host {
+  display: block;
+  width: 250px;
+  height: 300px;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .photo-card {
+    width: 100%;
+    max-width: 200px;
+    height: 250px;
+    margin: 5px;
+  }
+
+  .image-container {
+    height: 190px;
+  }
+}

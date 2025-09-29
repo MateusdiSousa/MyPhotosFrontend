@@ -1,0 +1,15 @@
+<main>
+  <h1>My Photos</h1>
+  <app-photo-upload
+  (loadPhotos)="loadPhotos()"></app-photo-upload>
+  <p *ngIf="photos.length == 0">Você não possui fotos</p>
+  <app-pagination
+    [maxVisiblePages]="maxVisiblePages"
+    [currentPage]="currentPage"
+    [pageSize]="this.pageSize"
+    [totalPages]="this.totalPages"
+    [totalElements]="this.totalElements"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+  <app-photo-grid [photos]="photos"></app-photo-grid>
+</main>

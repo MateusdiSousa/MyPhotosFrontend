@@ -1,0 +1,21 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-content">
+    <button class="close-btn" (click)="close.emit()">×</button>
+
+    <div class="top-right-buttons">
+      <!-- <button (click)="emitAddTag()">+ Tag</button> -->
+      <button (click)="emitDelete()">🗑️</button>
+    </div>
+
+    <div class="image-container">
+      <img *ngIf="isImage(this.photos[selectedIndex])" [src]="this.getUrl()" [alt]="photos[selectedIndex].originalFilename" />
+      <video *ngIf="isVideo(this.photos[selectedIndex])" [src]="this.getUrl()" controls></video>
+    </div>
+
+    <div class="carousel-controls">
+      <button (click)="prev()" [disabled]="selectedIndex === 0">⬅️</button>
+      <span>{{ selectedIndex + 1 }} / {{ photos.length }}</span>
+      <button (click)="next()" [disabled]="selectedIndex === photos.length - 1">➡️</button>
+    </div>
+  </div>
+</div>

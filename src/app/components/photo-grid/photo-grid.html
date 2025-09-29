@@ -1,0 +1,51 @@
+<!-- Controles de seleção -->
+<div class="selection-controls" *ngIf="isSelectionMode" @slideDown>
+  <div class="selection-info">
+    <span>{{ selectedCount }} foto(s) selecionada(s)</span>
+  </div>
+  <div class="selection-actions">
+    <button (click)="selectAll()" class="btn btn-secondary">
+      {{ selectedCount === photos.length ? 'Desselecionar Todas' : 'Selecionar Todas' }}
+    </button>
+    <button
+      (click)="deleteSelectedPhotos()"
+      class="btn btn-danger"
+      [disabled]="selectedCount === 0"
+    >
+      Deletar Fotos
+    </button>
+    <button (click)="toggleSelectionMode()" class="btn btn-outline">Cancelar</button>
+  </div>
+</div>
+
+<!-- Botão para ativar modo de seleção -->
+<button
+  *ngIf="!isSelectionMode && photos.length > 0"
+  (click)="toggleSelectionMode()"
+  class="btn btn-primary select-mode-btn"
+>
+  <i class="icon-select"></i>
+  Selecionar Fotos
+</button>
+
+<div class="grid-container" [class.selection-mode]="isSelectionMode">
+  <app-photo-item
+    *ngFor="let photo of photos; let i = index"
+    [photo]="photo"
+    [isSelectionMode]="isSelectionMode"
+    [isPhotoSelected]="isPhotoSelected(i)"
+    [isImage]="isImage(photo)"
+    [isVideo]="isVideo(photo)"
+    (click)="handleSelection(i)"
+  >
+  </app-photo-item>
+</div>
+
+<app-photo-view
+  *ngIf="this.modalVisible"
+  [photos]="this.photos"
+  [selectedIndex]="this.selectedPhotoIndex"
+  (close)="closeModal()"
+  (delete)="handleDelete($event)"
+>
+</app-photo-view>

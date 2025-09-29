@@ -1,0 +1,78 @@
+<div class="pagination-container" *ngIf="this.totalPages > 1">
+  <div class="pagination-info">
+    <span>Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+    <span>Total de {{ totalElements }} itens</span>
+  </div>
+
+  <div class="pagination-controls">
+    <!-- Primeira página -->
+    <button
+      class="pagination-btn pagination-first"
+      (click)="goToFirstPage()"
+      [disabled]="currentPage === 0"
+      title="Primeira página"
+    >
+      <span class="pagination-icon">««</span>
+    </button>
+
+    <!-- Página anterior -->
+    <button
+      class="pagination-btn pagination-prev"
+      (click)="goToPreviousPage()"
+      [disabled]="currentPage === 0"
+      title="Página anterior"
+    >
+      <span class="pagination-icon">‹</span>
+    </button>
+
+    <!-- Páginas numéricas -->
+    <div class="pagination-pages">
+      <button
+        *ngFor="let page of visiblePages"
+        class="pagination-btn pagination-page"
+        [class.active]="page === currentPage"
+        [class.ellipsis]="page === -1"
+        (click)="goToPage(page)"
+        [disabled]="page === -1"
+      >
+        <span *ngIf="page !== -1">{{ page + 1 }}</span>
+        <span *ngIf="page === -1">...</span>
+      </button>
+    </div>
+
+    <!-- Próxima página -->
+    <button
+      class="pagination-btn pagination-next"
+      (click)="goToNextPage()"
+      [disabled]="currentPage === totalPages - 1"
+      title="Próxima página"
+    >
+      <span class="pagination-icon">›</span>
+    </button>
+
+    <!-- Última página -->
+    <button
+      class="pagination-btn pagination-last"
+      (click)="goToLastPage()"
+      [disabled]="currentPage === totalPages - 1"
+      title="Última página"
+    >
+      <span class="pagination-icon">»»</span>
+    </button>
+  </div>
+
+  <div class="pagination-size-selector">
+    <label for="pageSize">Itens por página:</label>
+    <select
+      id="pageSize"
+      [value]="pageSize"
+      (change)="onPageSizeChange($event)"
+      class="page-size-select"
+    >
+      <option value="12">12</option>
+      <option value="24">24</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+</div>
