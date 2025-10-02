@@ -5,7 +5,6 @@ import { PagePhoto } from '../models/PagePhoto';
 import { MessageResponse } from '../models/MessageResponse';
 import { environment } from '../../environments/environment';
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -24,6 +23,10 @@ export class PhotoService {
 
   deletePhoto(id: number): Observable<MessageResponse> {
     return this.http.delete<MessageResponse>(this.apiUrl + '/delete/' + id);
+  }
+
+  downloadPhoto(id: number): string {
+    return this.apiUrl + "/download/"+ id;
   }
 
   sendFiles(session: WebSocket, files: File[]) {
@@ -103,7 +106,9 @@ export class PhotoService {
     const fileSize: number = file.size;
     const filenameBytes: Uint8Array = new TextEncoder().encode(file.name);
     const contentTypeBytes: Uint8Array = new TextEncoder().encode(file.type);
-    const totalChunkNumber: number = Math.ceil(fileSize / (environment.MAX_SIZE_FILE * 1024 * 1024));
+    const totalChunkNumber: number = Math.ceil(
+      fileSize / (environment.MAX_SIZE_FILE * 1024 * 1024)
+    );
 
     const content = await file.arrayBuffer();
     const chunkSize = environment.MAX_SIZE_FILE * 1024 * 1024;
