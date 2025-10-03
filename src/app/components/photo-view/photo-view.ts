@@ -66,19 +66,14 @@ export class PhotoView {
     const photoId = this.photos[this.selectedIndex]?.id;
     let url = this.photoService.downloadPhoto(photoId)
 
-    fetch(url, {
-      mode: 'no-cors',
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        let blobUrl = window.URL.createObjectURL(blob);
-        let a = document.createElement('a');
+
+    let a = document.createElement('a');
         a.download = url.replace(/^.*[\\\/]/, '');
-        a.href = blobUrl;
+        a.href = url;
         document.body.appendChild(a);
         a.click();
         a.remove();
-      });
+
   }
 
   onBackdropClick(event: MouseEvent): void {

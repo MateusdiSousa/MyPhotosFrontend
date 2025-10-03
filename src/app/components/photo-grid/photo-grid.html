@@ -14,6 +14,13 @@
     >
       Deletar Fotos
     </button>
+    <button
+      (click)="downloadSelectedPhotos()"
+      class="btn btn-primary"
+      [disabled]="selectedCount === 0"
+    >
+      Baixar Fotos
+    </button>
     <button (click)="toggleSelectionMode()" class="btn btn-outline">Cancelar</button>
   </div>
 </div>

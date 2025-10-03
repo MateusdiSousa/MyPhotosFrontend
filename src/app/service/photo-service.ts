@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpParamsOptions } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PagePhoto } from '../models/PagePhoto';
 import { MessageResponse } from '../models/MessageResponse';
@@ -26,7 +26,16 @@ export class PhotoService {
   }
 
   downloadPhoto(id: number): string {
-    return this.apiUrl + "/download/"+ id;
+    return this.apiUrl + '/download/' + id;
+  }
+
+  downloadPhotos(ids: number[]) {
+    let url = new URL(this.apiUrl + '/batch');
+    for (let id of ids) {
+      url.searchParams.append('ids', id.toString());
+    }
+
+    return url.toString()
   }
 
   sendFiles(session: WebSocket, files: File[]) {

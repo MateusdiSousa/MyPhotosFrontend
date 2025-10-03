@@ -39,18 +39,20 @@ export class PhotoGrid {
 
   deleteSelectedPhotos() {
     this.selectedPhotos.forEach((photoIndex) => {
-      console.log(photoIndex);
-      this.photoService.deletePhoto(this.photos[photoIndex].id).subscribe({
-        next: () => {
-          console.log('Foto deletada');
-        },
-        error: (err) => {
-          console.log('Erro ao deletar foto: ' + err);
-        },
-      });
+      this.photoService.deletePhoto(this.photos[photoIndex].id).subscribe();
     });
     this.photos = this.photos.filter((_, index) => !this.selectedPhotos.has(index));
     this.selectedPhotos.clear();
+  }
+
+  downloadSelectedPhotos() {
+    const listPhotos: number[] = [];
+    this.selectedPhotos.forEach((index) => {
+      listPhotos.push(this.photos[index].id);
+    });
+
+    const url = this.photoService.downloadPhotos(listPhotos);
+    open(url, 'blank');
   }
 
   selectAll() {
